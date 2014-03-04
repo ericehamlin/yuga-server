@@ -6,8 +6,11 @@
 var express = require('express');
 var routes = require('./routes');
 var user = require('./routes/user');
+var timeline = require('./routes/timeline');
 var http = require('http');
 var path = require('path');
+var monk = require('monk');
+var db = monk('localhost:27017/yuga');
 
 var app = express();
 
@@ -20,7 +23,7 @@ app.use(express.logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
-app.use(express.cookieParser('your secret here'));
+app.use(express.cookieParser('M19htymach'));
 app.use(express.session());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
@@ -31,7 +34,11 @@ if ('development' == app.get('env')) {
 }
 
 app.get('/', routes.index);
-app.get('/users', user.list);
+app.get('/user', user.list);
+
+app.get('/timeline', timeline.query(db));
+app.get('/timeline/:id', timeline.read(db));
+app.post('/timeline', timeline.create(db));
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
