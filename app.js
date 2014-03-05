@@ -33,13 +33,25 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
+
+// ROUTES
+app.all('/*',function(req,res,next){
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Content-Type");
+    res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE");
+    next();
+});
+
 app.get('/', routes.index);
 app.get('/user', user.list);
 
 app.get('/timeline', timeline.query(db));
 app.get('/timeline/:id', timeline.read(db));
 app.post('/timeline', timeline.create(db));
+app.put('/timeline/:id', timeline.update(db));
 
+
+// CREATE SERVER
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
